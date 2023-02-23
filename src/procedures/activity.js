@@ -164,8 +164,14 @@ module.exports = (config, rpc) => {
           largeImageText: track_data.title,
           smallImageKey: keys[1],
           smallImageText: track_data.user.username,
-          trackURL: request_data.url,
-          trackDuration: track_data.duration
+
+          buttons: [
+            { 
+              label: `Listen on SoundCloud!`, 
+              url: request_data.url 
+            }
+          ],
+
         };
 
         debug("Everything ok, updating activity.", activity_data);
