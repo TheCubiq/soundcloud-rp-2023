@@ -167,7 +167,7 @@ module.exports = (config, rpc) => {
 
           buttons: [
             { 
-              label: `Listen on SoundCloud!`, 
+              label: config.listenButtonText, 
               url: request_data.url 
             }
           ],

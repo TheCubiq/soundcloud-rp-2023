@@ -6,5 +6,6 @@
   "soundcloud": {
     "ClientID": "{insert soundcloud client_id}"
   },
-  "uploadArtwork": false
+  "uploadArtwork": false,
+  "listenButtonText": "Listen on SoundCloud!"
 }

@@ -1,3 +1,10 @@
+# **This simple fork adds nice "Listen On SoundCloud" button to your RP:**
+
+![1677121769298](doc/preview-rpc-with-button.png)
+
+
+---
+
 <img src="assets/default.png?raw=true" width="128" height="128" align="left">
 <h1>Soundcloud Rich Presence</h1>
 Adds Discord Rich Presence support to Soundcloud.
@@ -5,7 +12,7 @@ Adds Discord Rich Presence support to Soundcloud.
 
 ## Introduction
 
-Soundcloud Rich Presence allows you to show off your Soundcloud listening session to your friends using Discord Rich Presence. 
+Soundcloud Rich Presence allows you to show off your Soundcloud listening session to your friends using Discord Rich Presence.
 
 It is a combination of a server, communicating with discord itself, and a user-script, running on your browser to send playback information to the server. Sadly, due to restrictions in the rich presence protocol, it is mandatory to run both the server and the user-script in order for the system to work.
 
@@ -15,14 +22,14 @@ Artwork upload is not available by default due to Discord's asset limit (150). I
 
 ### With artwork upload
 
-| Profile | Popup |
-| ------ | ----- |
+| Profile                                     | Popup                                     |
+| ------------------------------------------- | ----------------------------------------- |
 | ![](doc/preview-artwork-profile.png?raw=true) | ![](doc/preview-artwork-popup.png?raw=true) |
 
 ### Without artwork upload
 
-| Profile | Popup |
-| ------ | ----- |
+| Profile                                        | Popup                                        |
+| ---------------------------------------------- | -------------------------------------------- |
 | ![](doc/preview-no-artwork-profile.png?raw=true) | ![](doc/preview-no-artwork-popup.png?raw=true) |
 
 ## Installation
@@ -30,6 +37,7 @@ Artwork upload is not available by default due to Discord's asset limit (150). I
 You will need to install [nodejs (v10) and npm (v6)](https://nodejs.org/en/download/current/) first. Make sure the `node` & `npm` commands are installed on your **PATH**.
 
 **Server:**
+
 1. Clone the repository somewhere on your hard drive or [unzip this archive](https://github.com/demaisj/soundcloud-rp/archive/master.zip) if you don't have git installed
 2. Open a terminal in the **soundcloud-rp** directory
 3. Install the dependencies with `npm install`
@@ -45,6 +53,7 @@ You will need to install [nodejs (v10) and npm (v6)](https://nodejs.org/en/downl
 6. Additionnaly create a systemd service (linux) or startup shortcut (windows) to start the server on bootup
 
 **Browser:**
+
 1. Install a userscript extension for your browser like [Tampermonkey](https://tampermonkey.net/)
 2. Download & install [`soundcloud-rp.user.js`](soundcloud-rp.user.js?raw=true)
 3. Open soundcloud & enjoy
@@ -52,6 +61,7 @@ You will need to install [nodejs (v10) and npm (v6)](https://nodejs.org/en/downl
 ## Artwork upload
 
 Here is a step by step guide to activate artwork upload:
+
 1. In the `config/default.json` file, change `uploadArtwork` from `false` to `true`
 2. Go to the [developer interface](https://discordapp.com/developers/applications/me) of Discord
 3. Create a new app, give it a cool name and save it
