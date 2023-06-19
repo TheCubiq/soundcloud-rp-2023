@@ -6,6 +6,19 @@
   "soundcloud": {
     "ClientID": "{insert soundcloud client_id}"
   },
+
+  "artworks": {
+    "bigKey": {
+      "url":"https://i.imgur.com/KKd7aoO.gif", 
+      "enabled": true
+    },
+    "smallKey": {
+      "url":"https://i.imgur.com/iCzihCd.gif", 
+      "enabled": true
+    }
+  },
+
   "uploadArtwork": false,
-  "listenButtonText": "Listen on SoundCloud!"
+  
+  "listenButtonText": "☁ Click Here To Listen! ☁"
 }

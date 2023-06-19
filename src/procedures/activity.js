@@ -1,6 +1,6 @@
 const trace = require('debug')('soundcloud-rp:trace');
 const debug = require('debug')('soundcloud-rp:activity');
-const { MAX_ARTWORK, ARTWORK_TRACK, ARTWORK_ARTIST } = require('../helpers/artwork');
+const { MAX_ARTWORK, ARTWORK_TRACK, ARTWORK_ARTIST, ARTWORK_SMALL } = require('../helpers/artwork');
 const image = require('../helpers/image');
 
 const WAIT_BEFORE_CLEAR = 15;
@@ -10,6 +10,45 @@ module.exports = (config, rpc) => {
   const soundcloud = require('../helpers/soundcloud')(config);
   const discord = require('../helpers/discord')(config);
 
+  let pageCounter = 0;
+  let pageCount = 0;
+
+
+  nextPage = (rpcInfo) => {    
+    // if there's '-' in the rpcInfo, split
+    let info = rpcInfo.map(item => item.split(/[-&]/)).flat().map(item => item.trim());
+    pageCount = info.length;
+    // counter will be used to know which text to return
+    debug("info: ", info);
+    pageCounter = (pageCounter + 1) % pageCount;
+    debug(`pageCounter: ${pageCounter}/${pageCount}`);
+    return info[pageCounter];
+  }
+
+  setArtwork = (type, keys) => {
+
+    // guard clause optimalized
+    if (type+1 != ARTWORK_TRACK) return keys[type];
+
+    // page where the track name is on 
+    if (pageCounter == (pageCount - 3)) {
+      return keys[ARTWORK_TRACK-1]
+    }
+
+    // page where the artist name is on    
+    if (pageCounter == (pageCount - 2)) {
+      return keys[ARTWORK_ARTIST-1]
+    }
+
+    if (config.artworks.bigKey.enabled){
+      return (config.artworks.bigKey.url);
+    }
+    else if (config.artworks.smallKey.enabled){
+      return (config.artworks.smallKey.url);
+    }
+
+  }
+
   function processArtwork(type, id, url) {
     trace('activity.processArtwork', type, id, url);
 
@@ -18,15 +57,16 @@ module.exports = (config, rpc) => {
 
       debug("Generated key for artwork:", key);
 
-      if (!config.uploadArtwork) {
-        debug("Uploading artworks is not supported, falling back to default");
+      
 
-        if (config.discord.ClientID == '443074120758853643') {
-          if (type == ARTWORK_TRACK)
-            return resolve(`default_large_${id % 11}`);
-          else if (type == ARTWORK_ARTIST)
-            return resolve('default_small');
+      if (!config.uploadArtwork) {
+        // now we don't need to upload it to discord app assets anymore,
+        // just pass the url we got. discord will nicely display it
+
+        if (type){
+          return resolve(url)
         }
+
         return resolve('default');
       }
 
@@ -155,14 +195,20 @@ module.exports = (config, rpc) => {
       .then(() => {
         debug('Artwork processed successfully', keys);
 
+        let rpcInfo = [
+          track_data.title,
+          `🎤 ${track_data.user.username}`,
+          config.customMessages
+        ]
+
         let activity_data = {
-          details: track_data.title,
-          state: `by ${track_data.user.username}`,
+          details: `🎵 ${track_data.title}`,
+          state: `${nextPage(rpcInfo)}`,
           startTimestamp,
           endTimestamp,
-          largeImageKey: keys[0],
+          largeImageKey: setArtwork(0, keys),
           largeImageText: track_data.title,
-          smallImageKey: keys[1],
+          smallImageKey: setArtwork(1, keys),
           smallImageText: track_data.user.username,
 
           buttons: [
@@ -185,7 +231,14 @@ module.exports = (config, rpc) => {
       })
       .catch(error);
     })
-    .catch(error);
+    .catch((err) => {
+      debug('Error code:', err.statusCode);
+      if (err.statusCode == 401) {
+        debug("Unauthorized, make sure that your SC ClientID is valid")
+      }
+      error(err)
+    });
+    // .catch(error);
 
     }
     catch(err) {
