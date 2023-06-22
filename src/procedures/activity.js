@@ -15,38 +15,46 @@ module.exports = (config, rpc) => {
 
 
   nextPage = (rpcInfo) => {    
-    // if there's '-' in the rpcInfo, split
-    let info = rpcInfo.map(item => item.split(/[-&]/)).flat().map(item => item.trim());
+    // if there's '-' or '|' in the rpcInfo, split
+    let info = rpcInfo.map(item => item.split(/[-|&]/)).flat().map(item => item.trim());
     pageCount = info.length;
     // counter will be used to know which text to return
     debug("info: ", info);
     pageCounter = (pageCounter + 1) % pageCount;
-    debug(`pageCounter: ${pageCounter}/${pageCount}`);
+    debug(`pageCounter: ${pageCounter+1}/${pageCount}`);
     return info[pageCounter];
   }
 
   setArtwork = (type, keys) => {
 
-    // guard clause optimalized
-    if (type+1 != ARTWORK_TRACK) return keys[type];
+    let messages = config.customMessages.length;
 
-    // page where the track name is on 
-    if (pageCounter == (pageCount - 3)) {
-      return keys[ARTWORK_TRACK-1]
+    if (type+1 == ARTWORK_TRACK) {
+
+      // page where the track name is on 
+      if (pageCounter <= (pageCount - messages - 2)) {
+        return keys[ARTWORK_TRACK-1]
+      }
+
+      // page where the artist name is on    
+      if (pageCounter == (pageCount - messages - 1)) {
+        return keys[ARTWORK_ARTIST-1]
+      }
+
+      if (config.artworks.bigKey.enabled){
+        return (config.artworks.bigKey.url);
+      }
+    }
+    else {
+      if (pageCounter >= (pageCount - messages)) {
+        return keys[ARTWORK_ARTIST-1]
+      }
+      if (config.artworks.smallKey.enabled){
+        return (config.artworks.smallKey.url);
+      }
     }
 
-    // page where the artist name is on    
-    if (pageCounter == (pageCount - 2)) {
-      return keys[ARTWORK_ARTIST-1]
-    }
-
-    if (config.artworks.bigKey.enabled){
-      return (config.artworks.bigKey.url);
-    }
-    else if (config.artworks.smallKey.enabled){
-      return (config.artworks.smallKey.url);
-    }
-
+    return keys[type] || "default"
   }
 
   function processArtwork(type, id, url) {
@@ -64,7 +72,7 @@ module.exports = (config, rpc) => {
         // just pass the url we got. discord will nicely display it
 
         if (type){
-          return resolve(url)
+          return resolve(url || "default")
         }
 
         return resolve('default');
@@ -198,7 +206,7 @@ module.exports = (config, rpc) => {
         let rpcInfo = [
           track_data.title,
           `🎤 ${track_data.user.username}`,
-          config.customMessages
+          ...config.customMessages
         ]
 
         let activity_data = {
@@ -220,7 +228,7 @@ module.exports = (config, rpc) => {
 
         };
 
-        debug("Everything ok, updating activity.", activity_data);
+        // debug("Everything ok, updating activity.", activity_data);
         rpc.setActivity(activity_data)
         .then(() => {
           rpc.setActivityTimeout(endTimestamp + WAIT_BEFORE_CLEAR);
