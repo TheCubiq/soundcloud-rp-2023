@@ -1,4 +1,4 @@
-const request = require('request-promise-native');
+const axios = require('axios');
 const trace = require('debug')('soundcloud-rp:trace');
 const DataURI = require('datauri');
 const url_parser = require('url').parse;
@@ -13,7 +13,7 @@ function imageDataFromFile(pathname) {
     datauri
       .on('encoded', resolve)
       .on('error', reject)
-      .encode(pathname)
+      .encode(pathname);
   });
 }
 
@@ -23,19 +23,19 @@ function imageDataFromUrl(url) {
   const datauri = new DataURI();
 
   return new Promise((resolve, reject) => {
-
-    request.get(url, {
-      encoding: null
+    axios.get(url, {
+      responseType: 'arraybuffer'
     })
-    .then((buffer) => {
-      let parsed = url_parser(url),
-        filename = path.basename(parsed.pathname);
+      .then(response => {
+        const buffer = Buffer.from(response.data, 'binary');
+        const parsed = url_parser(url);
+        const filename = path.basename(parsed.pathname);
 
-      datauri.format(filename, buffer);
-      resolve(datauri.content);
-    })
-    .catch(reject);
-  })
+        datauri.format(filename, buffer);
+        resolve(datauri.content);
+      })
+      .catch(reject);
+  });
 }
 
 module.exports = {
