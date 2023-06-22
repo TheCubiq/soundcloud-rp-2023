@@ -1,4 +1,4 @@
-const request = require('request-promise-native');
+const axios = require('axios');
 const trace = require('debug')('soundcloud-rp:trace');
 
 module.exports = (config) => {
@@ -6,13 +6,14 @@ module.exports = (config) => {
   function getTrackData(url) {
     trace('soundcloud.getTrackData', url);
 
-    return request.get('https://api-v2.soundcloud.com/resolve', {
-      qs: {
+    return axios.get('https://api-v2.soundcloud.com/resolve', {
+      params: {
         client_id: config.soundcloud.ClientID,
         url
       },
-      json: true
-    });
+      responseType: 'json'
+    })
+    .then(response => response.data);
   }
 
   function sanitizeArtworkUrl(url) {
@@ -25,4 +26,4 @@ module.exports = (config) => {
     getTrackData,
     sanitizeArtworkUrl
   };
-}
+};
