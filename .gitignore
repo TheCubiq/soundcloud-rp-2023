@@ -134,3 +134,7 @@ $RECYCLE.BIN/
 # End of https://www.gitignore.io/api/node,linux,windows,sublimetext
 
 misc/
+cmd-silent.bat
+default.png
+help.bat
+invis.vbs
