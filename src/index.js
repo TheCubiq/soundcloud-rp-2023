@@ -16,7 +16,11 @@ const rpc = require('./rpc')(config);
 
 const app = express();
 const server = http.createServer(app);
-const io = socketio(server);
+const io = socketio(server, {
+  cors: {
+    origin: true, // Stfu cors
+  }
+});
 
 app.use(cors());
 app.use(bodyParser.json());

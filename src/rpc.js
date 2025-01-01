@@ -35,9 +35,8 @@ module.exports = (config) => {
     connect() {
       trace("rpc.connect");
       debug("Connecting to discord...");
-
-      debug(`ClientID: ${this._config.discord.ClientID}`);
-      this._rpc.login({clientId: this._config.discord.ClientID })
+      this._rpc.clientId = this._config.discord.ClientID;
+      this._rpc.login()
       .then(() => {
         trace("rpc.connect.success");
         debug("Connected to discord!");
@@ -89,7 +88,7 @@ module.exports = (config) => {
           reject(err);
         }, TIMEOUT * 1000);
 
-        this._rpc.setActivity(data).then(() => {
+        this._rpc.user.setActivity(data).then(() => {
           trace("rpc.setActivity.success");
 
           clearTimeout(request_timeout);
