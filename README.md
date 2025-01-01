@@ -2,6 +2,12 @@
 
 ![1677121769298](doc/preview-rpc-with-button.png)
 
+all fork features:
+
+* pagination
+* replaced modules so it works with current versions of nodejs and npm
+* artworks without uploading (embedding them directly from sc)
+* custom messages
 
 ---
 

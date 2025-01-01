@@ -1,8 +1,8 @@
-const { Client } = require('discord-rpc');
+const { Client } = require('@xhayper/discord-rpc');
 const trace = require('debug')('soundcloud-rp:trace');
 const debug = require('debug')('soundcloud-rp:rpc');
 
-const WAIT_BETWEEN_TRIES = 10;
+const WAIT_BETWEEN_TRIES = 20;
 const TIMEOUT = 10;
 
 module.exports = (config) => {
@@ -36,6 +36,7 @@ module.exports = (config) => {
       trace("rpc.connect");
       debug("Connecting to discord...");
 
+      debug(`ClientID: ${this._config.discord.ClientID}`);
       this._rpc.login({clientId: this._config.discord.ClientID })
       .then(() => {
         trace("rpc.connect.success");

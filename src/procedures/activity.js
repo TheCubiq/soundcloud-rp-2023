@@ -12,17 +12,47 @@ module.exports = (config, rpc) => {
 
   let pageCounter = 0;
   let pageCount = 0;
+  let pageData = [];
 
 
   nextPage = (rpcInfo) => {    
     // if there's '-' or '|' in the rpcInfo, split
-    let info = rpcInfo.map(item => item.split(/[-|&]/)).flat().map(item => item.trim());
+    let info = rpcInfo.map(item => item.split(/[-|&,]/)).flat().map(item => item.trim());
+    // compare info with pageData, if they are the same, return the next page
+    if (!(info.length == pageData.length && info.every((value, index) => value === pageData[index]))) { 
+      pageData = info;
+    }    
     pageCount = info.length;
     // counter will be used to know which text to return
-    debug("info: ", info);
+    debug("info: ", pageData);
     pageCounter = (pageCounter + 1) % pageCount;
-    debug(`pageCounter: ${pageCounter+1}/${pageCount}`);
+    debug(`page: ${pageCounter+1}/${pageCount}`);
+    debug(`pageCounter: ${pageCounter}`);
+    debug(`pageCount: ${pageCount}`);
+
+    
+    debug(`previousPage: ${(pageCounter - 1 + pageCount) % pageCount}`);
     return info[pageCounter];
+  }
+
+  modullo = (n, m) => {
+    return ((n % m) + m) % m;
+  }
+
+  getPage = (offset) => {
+    // depending on direction
+    // if (config.scrolling.enabled) {
+    //     return pageData[(pageCounter + 
+    //         config.scrolling.direction + 
+    //         offset-2 + 
+    //         pageCount) % pageCount
+    //         ];
+    // }
+    const direction = (config.scrolling.direction == "up") ? 1 : -1;
+    const index =  modullo((pageCounter + (offset*direction)), pageCount);
+    return pageData[index];
+
+
   }
 
   setArtwork = (type, keys) => {
@@ -209,9 +239,13 @@ module.exports = (config, rpc) => {
           ...config.customMessages
         ]
 
+        nextPage(rpcInfo)
+
         let activity_data = {
-          details: `🎵 ${track_data.title}`,
-          state: `${nextPage(rpcInfo)}`,
+          // details: `🎵 ${track_data.title}`,
+          // state: `${getPage(0)}`,
+          details: `${getPage(0)}`,
+          state: `${getPage(1)}`,
           startTimestamp,
           endTimestamp,
           largeImageKey: setArtwork(0, keys),
@@ -240,9 +274,9 @@ module.exports = (config, rpc) => {
       .catch(error);
     })
     .catch((err) => {
-      debug('Error code:', err.statusCode);
-      if (err.statusCode == 401) {
-        debug("Unauthorized, make sure that your SC ClientID is valid")
+      debug('Error code:', err.response.status);
+      if (err.response.status == 401) {
+        debug("Unauthorized, make sure that your SC ClientID is valid or expired")
       }
       error(err)
     });
