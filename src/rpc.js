@@ -126,7 +126,7 @@ module.exports = (config) => {
           reject(err);
         }, TIMEOUT * 1000);
 
-        this._rpc.clearActivity().then(() => {
+        this._rpc.user.clearActivity().then(() => {
           trace("rpc.clearActivity.success");
 
           clearTimeout(request_timeout);

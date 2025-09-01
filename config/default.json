@@ -20,6 +20,11 @@
 
   "uploadArtwork": false,
 
+  "scrolling" : {
+    "enabled": true,
+    "direction": "up"
+  },
+
   "customMessages": [
     "with 🤍 by Cubiq ... 🌍[cubiq.dev]"
   ],
