@@ -162,7 +162,7 @@ module.exports = (config, rpc) => {
 
   let LOCKED = false;
 
-  return (request_data) => {
+  const activityFn = (request_data) => {
     trace('activity', request_data);
 
     return new Promise((resolve, reject) => {
@@ -216,7 +216,7 @@ module.exports = (config, rpc) => {
     }
 
     debug("getting track info...");
-    soundcloud.getTrackData(request_data.url)
+    soundcloud.getTrackData(request_data.url, request_data.client_id)
     .then((track_data) => {
       debug("Track info downloaded successfully.", track_data.id);
 
@@ -288,4 +288,8 @@ module.exports = (config, rpc) => {
     }
   });
   };
+
+  activityFn.soundcloud = soundcloud;
+
+  return activityFn;
 };

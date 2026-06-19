@@ -47,7 +47,7 @@ You will need to install [nodejs (v10) and npm (v6)](https://nodejs.org/en/downl
 1. Clone the repository somewhere on your hard drive or [unzip this archive](https://github.com/demaisj/soundcloud-rp/archive/master.zip) if you don't have git installed
 2. Open a terminal in the **soundcloud-rp** directory
 3. Install the dependencies with `npm install`
-4. Retrieve your Soundcloud ClientID :
+4. **(Optional)** Retrieve your Soundcloud ClientID if you want a fallback, though the server now automatically detects it dynamically from your browser userscript:
    - Open [Soundcloud](https://soundcloud.com/) then hit Ctrl+Shift+I to open the devtools
    - Go to the **Network** tab
    - Filter by `api-v2.soundcloud.com`

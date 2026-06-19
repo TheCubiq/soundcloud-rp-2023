@@ -8,6 +8,13 @@ module.exports = function(config, io, rpc) {
   io.on('connection', function(socket){
     trace('client.connection', socket.id);
 
+    socket.on('client_id', function(clientId){
+      trace('client.event', socket.id, 'client_id', clientId);
+      if (activity.soundcloud && typeof activity.soundcloud.setClientId === 'function') {
+        activity.soundcloud.setClientId(clientId);
+      }
+    });
+
     socket.on('activity', function(data){
       trace('client.event', socket.id, 'activity', data);
 

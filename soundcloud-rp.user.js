@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Soundcloud Rich Presence
 // @namespace    https://github.com/demaisj/soundcloud-rp
-// @version      2.1.0
+// @version      2.2.0
 // @description  Adds Discord Rich Presence support to Soundcloud. A server is needed to run in background in order for the system to work.
 // @author       demaisj
 // @match        https://soundcloud.com/*
@@ -13,6 +13,7 @@
 (function(){
   var SERVER_URL = 'http://127.0.0.1:7769';
   var POLL_INTERVAL = 10; // seconds
+  var currentClientId = null; // Store it to avoid spamming the backend
 
   function init() {
     if (typeof io === 'undefined') {
@@ -24,28 +25,78 @@
 
     socket.on('connect', function() {
       console.log('soundcloud-rp: connected to server');
+      // If we already caught the client ID before the socket connected, send it now
+      if (currentClientId) {
+        socket.emit('client_id', currentClientId);
+      }
     });
 
     socket.on('connect_error', function(err) {
       console.warn('soundcloud-rp: connection error, retrying...', err.message);
     });
 
+    // --- NEW: Intercept Network Requests to catch the client_id ---
+    function extractAndSendClientId(url) {
+        if (typeof url !== 'string') return;
+        
+        // Look for api-v2.soundcloud.com and the client_id parameter
+        if (url.includes('api-v2.soundcloud.com') && url.includes('client_id=')) {
+            var match = url.match(/client_id=([a-zA-Z0-9]+)/);
+            if (match && match[1]) {
+                var foundClientId = match[1];
+                
+                // Only emit if it's a new token to prevent socket spam
+                if (foundClientId !== currentClientId) {
+                    currentClientId = foundClientId;
+                    console.log('soundcloud-rp: Found new client_id:', currentClientId);
+                    
+                    // Send to the backend immediately
+                    if (socket.connected) {
+                        socket.emit('client_id', currentClientId);
+                    }
+                }
+            }
+        }
+    }
+
+    // Intercept the modern Fetch API
+    var originalFetch = window.fetch;
+    window.fetch = function() {
+        var url = arguments[0];
+        // arguments[0] can be a Request object or a URL string
+        if (url instanceof Request) {
+            extractAndSendClientId(url.url);
+        } else {
+            extractAndSendClientId(url);
+        }
+        return originalFetch.apply(this, arguments);
+    };
+
+    // Intercept XMLHttpRequest (just in case SC falls back to it)
+    var originalXhrOpen = XMLHttpRequest.prototype.open;
+    XMLHttpRequest.prototype.open = function(method, url) {
+        extractAndSendClientId(url);
+        return originalXhrOpen.apply(this, arguments);
+    };
+    // ---------------------------------------------------------------
+
     function poll_activity() {
       var $title = document.querySelector(".playbackSoundBadge__titleLink"),
-        $progress = document.querySelector(".playbackTimeline__progressWrapper"),
-        $play = document.querySelector(".playControls__play");
+          $progress = document.querySelector(".playbackTimeline__progressWrapper"),
+          $play = document.querySelector(".playControls__play");
 
       if (!$title || !$progress || !$play)
         return;
 
       var url = "https://soundcloud.com" + $title.getAttribute("href"),
-        pos = parseInt($progress.getAttribute("aria-valuenow"), 10),
-        playing = $play.classList.contains("playing");
+          pos = parseInt($progress.getAttribute("aria-valuenow"), 10),
+          playing = $play.classList.contains("playing");
 
       if (!playing)
         return;
 
-      socket.emit('activity', { url: url, pos: pos });
+      // You can also optionally bundle it with the standard activity ping
+      socket.emit('activity', { url: url, pos: pos, client_id: currentClientId });
     }
 
     poll_activity();

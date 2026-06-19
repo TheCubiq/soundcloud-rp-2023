@@ -8,8 +8,6 @@ const cors = require('cors');
 
 const config = require('../config/default.json');
 
-if (config.soundcloud.ClientID == '{insert soundcloud client_id}')
-  throw new Error('Please edit the default soundcloud client_id before starting the server');
 
 const rpc = require('./rpc')(config);
 
